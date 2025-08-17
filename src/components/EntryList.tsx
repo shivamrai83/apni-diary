@@ -26,9 +26,9 @@ const EntryList: React.FC = () => {
     });
   };
 
-  const getRelativeTime = (timestamp: number) => {
-    const now = Date.now();
-    const diff = now - timestamp;
+  const getRelativeTime = (createdAt: string) => {
+    const now = new Date().getTime();
+    const diff = now - new Date(createdAt).getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     
     if (days === 0) return 'Today';
@@ -73,7 +73,7 @@ const EntryList: React.FC = () => {
                     <Calendar className="w-4 h-4" />
                     <span>{formatDate(entry.date)}</span>
                   </span>
-                  <span>{getRelativeTime(entry.timestamp)}</span>
+                  <span>{getRelativeTime(entry.created_at)}</span>
                 </div>
                 {expandedEntry !== entry.id && (
                   <p className="text-purple-300 mt-2 line-clamp-2">

@@ -34,28 +34,34 @@ const DiaryForm: React.FC<DiaryFormProps> = ({ existingEntry }) => {
     if (!title.trim() || !content.trim()) return;
 
     setIsSubmitting(true);
+    console.log('Form submission started:', { title, mood, content });
 
     const today = new Date().toISOString().split('T')[0];
 
     try {
       if (existingEntry) {
-        updateEntry(existingEntry.id, { title, mood, content });
+        console.log('Updating existing entry:', existingEntry.id);
+        await updateEntry(existingEntry.id, { title, mood, content });
+        console.log('Entry updated successfully');
       } else {
-        addEntry({
+        console.log('Adding new entry for date:', today);
+        await addEntry({
           date: today,
           title: title.trim(),
           mood,
           content: content.trim(),
         });
-      }
-
-      if (!existingEntry) {
+        console.log('Entry added successfully');
+        
+        // Only reset form after successful database operation
         setTitle('');
         setMood('😊');
         setContent('');
+        console.log('Form reset after successful save');
       }
     } catch (error) {
       console.error('Error saving entry:', error);
+      // Don't reset form on error - let user see their data and try again
     } finally {
       setIsSubmitting(false);
     }
@@ -145,7 +151,7 @@ const DiaryForm: React.FC<DiaryFormProps> = ({ existingEntry }) => {
 
       {existingEntry && (
         <p className="text-sm text-purple-400 text-center">
-          Last updated: {new Date(existingEntry.timestamp).toLocaleDateString()}
+          Last updated: {new Date(existingEntry.created_at).toLocaleDateString()}
         </p>
       )}
     </form>

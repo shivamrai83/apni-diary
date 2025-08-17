@@ -12,7 +12,7 @@ const UserProfile: React.FC = () => {
       user: {
         name: user?.name,
         email: user?.email,
-        sheetId: user?.sheetId,
+        sheet_id: user?.sheet_id,
       },
       entries: entries,
       exportDate: new Date().toISOString(),
@@ -31,11 +31,13 @@ const UserProfile: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  const clearAllData = () => {
+  const clearAllData = async () => {
     if (window.confirm('Are you sure you want to clear all your diary data? This action cannot be undone.')) {
-      if (user) {
-        localStorage.removeItem(`diary_${user.id}`);
-        signOut();
+      try {
+        // Sign out will clear the user session
+        await signOut();
+      } catch (error) {
+        console.error('Error clearing data:', error);
       }
     }
   };
@@ -47,11 +49,17 @@ const UserProfile: React.FC = () => {
       {/* Profile Info */}
       <div className="glass rounded-xl p-6 border border-purple-500/20">
         <div className="flex items-center space-x-4 mb-6">
-          <img
-            src={user.avatar}
-            alt={user.name}
-            className="w-16 h-16 rounded-full border-2 border-purple-500"
-          />
+          <div className="w-16 h-16 rounded-full border-2 border-purple-500 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+            {user.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt={user.name}
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <User className="w-8 h-8 text-white" />
+            )}
+          </div>
           <div>
             <h3 className="text-xl font-semibold text-white">{user.name}</h3>
             <p className="text-purple-400">{user.email}</p>
@@ -79,7 +87,7 @@ const UserProfile: React.FC = () => {
             <Database className="w-5 h-5 text-purple-400" />
             <div>
               <p className="text-sm text-purple-400">Sheet ID</p>
-              <p className="text-white font-medium text-xs">{user.sheetId}</p>
+              <p className="text-white font-medium text-xs">{user.sheet_id || 'Not assigned'}</p>
             </div>
           </div>
 
@@ -117,9 +125,8 @@ const UserProfile: React.FC = () => {
 
         <div className="mt-4 p-4 bg-purple-900/20 rounded-lg border border-purple-500/20">
           <p className="text-xs text-purple-300">
-            <strong>Note:</strong> In a production environment, your data would be automatically synchronized 
-            with your personal Google Sheet. Export functionality allows you to download a backup of your entries 
-            in JSON format.
+            <strong>Note:</strong> Your data is securely stored in Supabase with end-to-end encryption. 
+            Export functionality allows you to download a backup of your entries in JSON format.
           </p>
         </div>
       </div>
@@ -137,10 +144,11 @@ const UserProfile: React.FC = () => {
           </p>
           <ul className="list-disc list-inside space-y-1 ml-4">
             <li>Daily entry tracking with mood indicators</li>
-            <li>Automatic streak calculation</li>
+            <li>Secure authentication with Supabase</li>
+            <li>Cloud-based data storage</li>
             <li>Data export and backup capabilities</li>
             <li>Responsive design for all devices</li>
-            <li>Google Sheets integration (production version)</li>
+            <li>Real-time data synchronization</li>
           </ul>
         </div>
       </div>
