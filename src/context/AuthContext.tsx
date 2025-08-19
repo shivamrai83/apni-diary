@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     // Check for existing Supabase session
     const getSession = async () => {
-      console.log('AuthContext: Starting session check...');
+      console.log('********************************First session check initiated********************************');
       try {
         const { data: { session } } = await supabase.auth.getSession();
         console.log('AuthContext: Session check result:', session);
@@ -55,27 +55,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setLoading(false);
       }
     };
+    (async () => {
+      console.log('AuthContext IIFI: Initializing session check...');
+      await getSession();
+      console.log('AuthContext IIFI: Session check complete');
+    })();
+  }, []);
 
-    getSession();
-
-    // Listen for auth changes
-    console.log('AuthContext: Setting up auth state listener...');
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('AuthContext: Auth state change event:', event, session);
-        if (session?.user) {
-          console.log('AuthContext: User authenticated, loading profile...');
-          await loadUserProfile(session.user.id);
-        } else {
-          console.log('AuthContext: User not authenticated');
-          setUser(null);
-        }
-        setLoading(false);
+  useEffect(() => {
+    console.log('*********************************2nd change listener set up********************************');
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('AuthContext: Auth state changed:', event, session);
+      if (session?.user) {
+        console.log('AuthContext: User signed in, loading profile...');
+        loadUserProfile(session.user.id);
+      } else {
+        console.log('AuthContext: User signed out');
+        setUser(null);
       }
-    );
+    });
 
     return () => {
-      console.log('AuthContext: Cleaning up auth listener');
+      console.log('AuthContext: Cleaning up auth subscription');
       subscription.unsubscribe();
     };
   }, []);
